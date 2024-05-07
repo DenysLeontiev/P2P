@@ -13,7 +13,7 @@ const constraints = {
         width: { min: 640, ideal: 1920, max: 1920 },
         height: { min: 480, ideal: 1080, max: 1080 },
     },
-    audio: false
+    audio: true
 }
 
 const servers = {
@@ -38,6 +38,7 @@ if (!roomId) {
 let init = async () => {
 
     document.getElementById('video-off-text').style.display = 'none';
+    document.getElementById('microphone-off-text').style.display = 'none';
 
     client = await AgoraRTM.createInstance(APP_ID);
     await client.login({ uid, token });
@@ -67,7 +68,11 @@ let handleMessageFromPeer = async (message, memberId) => {
     }
 
     if(message.type === 'toggledMic') {
-        console.log("Mic is " + message.isMicEnabled);
+        if(!message.isCamEnabled) {
+            document.getElementById('microphone-off-text').style.display = 'block';
+        } else {
+            document.getElementById('microphone-off-text').style.display = 'none';
+        }
     }
 
     if (message.type === 'offer') {
