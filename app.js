@@ -6,12 +6,14 @@ let uid = String(Math.floor(Math.random() * 1000000));
 let client;
 let channel; // two users join here
 
+let remoteMemberId;
+
 const constraints = {
     video: {
         width: { min: 640, ideal: 1920, max: 1920 },
         height: { min: 480, ideal: 1080, max: 1080 },
     },
-    audio: true
+    audio: false
 }
 
 const servers = {
@@ -53,6 +55,14 @@ let init = async () => {
 let handleMessageFromPeer = async (message, memberId) => {
     message = JSON.parse(message.text);
 
+    if(message.type === 'toggledCam') {
+        console.log("Cam is " + message.isCamEnabled);
+    }
+
+    if(message.type === 'toggledMic') {
+        console.log("Mic is " + message.isMicEnabled);
+    }
+
     if (message.type === 'offer') {
         createAnswer(memberId, message.offer);
     }
@@ -70,6 +80,7 @@ let handleMessageFromPeer = async (message, memberId) => {
 
 let handleUserJoined = async (memberId) => {
     createOffer(memberId);
+    remoteMemberId = memberId;
 }
 
 let handleUserLeft = async (memberId) => {
@@ -127,6 +138,7 @@ let createOffer = async (memberId) => {
 }
 
 let createAnswer = async (memberId, offer) => {
+    remoteMemberId = memberId;
     await createPeerConnection(memberId);
 
     await peerConnection.setRemoteDescription(offer);
@@ -152,6 +164,9 @@ let toggleCamera = async () => {
         }
         videoTrack.enabled = !videoTrack.enabled;
     });
+
+    let isCamEnabled = localStream.getVideoTracks()[0].enabled;
+    client.sendMessageToPeer({ text: JSON.stringify({ 'type': 'toggledCam', 'isCamEnabled': isCamEnabled }) }, remoteMemberId);
 }
 
 let toggleMic =  async () => {
@@ -164,6 +179,8 @@ let toggleMic =  async () => {
         }
         audioTrack.enabled = !audioTrack.enabled;
     });
+    let isMicEnabled = localStream.getAudioTracks()[0].enabled;
+    client.sendMessageToPeer({ text: JSON.stringify({ 'type': 'toggledMic', 'isMicEnabled': isMicEnabled }) }, remoteMemberId);
 }
 
 // before website actually closes
