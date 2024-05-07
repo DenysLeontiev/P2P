@@ -7,8 +7,11 @@ let client;
 let channel; // two users join here
 
 const constraints = {
-    video: true,
-    audio: false
+    video: {
+        width: { min: 640, ideal: 1920, max: 1920 },
+        height: { min: 480, ideal: 1080, max: 1080 },
+    },
+    audio: true
 }
 
 const servers = {
@@ -26,10 +29,9 @@ let peerConnection;
 const urlParams = new URLSearchParams(window.location.search);
 let roomId = urlParams.get('room');
 
-if(!roomId) {
-    window.location.href = 'lobby.html';    
+if (!roomId) {
+    window.location.href = 'lobby.html';
 }
-
 
 let init = async () => {
 
@@ -50,24 +52,23 @@ let init = async () => {
 
 let handleMessageFromPeer = async (message, memberId) => {
     message = JSON.parse(message.text);
-    
-    if(message.type === 'offer') {
+
+    if (message.type === 'offer') {
         createAnswer(memberId, message.offer);
     }
 
-    if(message.type === 'answer') {
+    if (message.type === 'answer') {
         addAnswer(message.answer);
     }
 
-    if(message.type === 'candidate') {
-        if(peerConnection) {
+    if (message.type === 'candidate') {
+        if (peerConnection) {
             peerConnection.addIceCandidate(message.candidate);
         }
     }
 }
 
 let handleUserJoined = async (memberId) => {
-    console.log("New user joined: ", memberId);
     createOffer(memberId);
 }
 
@@ -83,7 +84,7 @@ let createPeerConnection = async (memberId) => {
 
     document.getElementById('remote').style.display = 'block';
 
-    if(!localStream) {
+    if (!localStream) {
         localStream = await navigator.mediaDevices.getUserMedia(constraints);
         document.getElementById('local').srcObject = localStream;
     }
@@ -103,14 +104,13 @@ let createPeerConnection = async (memberId) => {
     // called when setLocalDescription() is called
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
-            console.log(event.candidate);
             client.sendMessageToPeer({ text: JSON.stringify({ 'type': 'candidate', 'candidate': event.candidate }) }, memberId);
         }
     }
 }
 
 let addAnswer = async (answer) => {
-    if(!peerConnection.currentRemoteDescription) {
+    if (!peerConnection.currentRemoteDescription) {
         peerConnection.setRemoteDescription(answer);
     }
 }
@@ -132,7 +132,7 @@ let createAnswer = async (memberId, offer) => {
     let answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
 
-    client.sendMessageToPeer({text: JSON.stringify({'type':'answer','answer': answer})}, memberId);
+    client.sendMessageToPeer({ text: JSON.stringify({ 'type': 'answer', 'answer': answer }) }, memberId);
 }
 
 let leaveChannel = async () => {
@@ -140,9 +140,37 @@ let leaveChannel = async () => {
     await client.logout();
 }
 
+let toggleCamera = async () => {
+    localStream.getVideoTracks().forEach((videoTrack) => {
+        if(videoTrack.enabled) {
+            document.getElementById('camera-btn').style.backgroundColor = 'rgb(255, 80, 80)';
+
+        } else {
+            document.getElementById('camera-btn').style.backgroundColor = 'rgb(179, 102, 249, .9)';
+        }
+        videoTrack.enabled = !videoTrack.enabled;
+    });
+}
+
+let toggleMic =  async () => {
+    localStream.getAudioTracks().forEach((audioTrack) => {
+        if(audioTrack.enabled) {
+            document.getElementById('mic-btn').style.backgroundColor = 'rgb(255, 80, 80)';
+
+        } else {
+            document.getElementById('mic-btn').style.backgroundColor = 'rgb(179, 102, 249, .9)';
+        }
+        audioTrack.enabled = !audioTrack.enabled;
+    });
+}
+
 // before website actually closes
 window.onbeforeunload = (e) => {
     leaveChannel();
 }
+
+document.getElementById('camera-btn').addEventListener('click', toggleCamera);
+document.getElementById('mic-btn').addEventListener('click', toggleMic);
+  
 
 init();
