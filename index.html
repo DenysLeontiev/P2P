@@ -5,16 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <title>P2P</title>
 </head>
 
 <body>
     <div id="videos">
         <video class="video-player" id="local" autoplay playsinline></video>
-        <div style="position: relative; display: flex; justify-content: center; align-items: center; height: 100%;">
-            <h2 id="video-off-text" style="position: absolute; z-index: 1; color: white;">Remote video is off</h2>
-            <h2 id="microphone-off-text" style="position: absolute; z-index: 1; color: white; margin-top: 50px;">Remote microphone is off</h2>
-            <video class="video-player remote-video-player" id="remote" autoplay playsinline style="z-index: 0;"></video>
+        <div style="position: relative; display: flex; justify-content: end; align-items: center; height: 100%;">
+            <i id="video-off-text"
+                style="position: absolute; z-index: 9999; color: white; left: 0; bottom: 0;margin-bottom: 10px;"
+                class="fa fa-video-slash"></i>
+            <i id="microphone-off-text"
+                style="position: absolute; z-index: 9999; color: white; left: 0; bottom: 0; margin-bottom: 10px;margin-left: 25px;"
+                class="fa fa-microphone-slash"></i>
+            <video class="video-player remote-video-player" id="remote" autoplay playsinline
+                style="z-index: 0;"></video>
         </div>
 
     </div>
