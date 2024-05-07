@@ -37,6 +37,8 @@ if (!roomId) {
 
 let init = async () => {
 
+    document.getElementById('video-off-text').style.display = 'none';
+
     client = await AgoraRTM.createInstance(APP_ID);
     await client.login({ uid, token });
 
@@ -57,6 +59,11 @@ let handleMessageFromPeer = async (message, memberId) => {
 
     if(message.type === 'toggledCam') {
         console.log("Cam is " + message.isCamEnabled);
+        if(!message.isCamEnabled) {
+            document.getElementById('video-off-text').style.display = 'block';
+        } else {
+            document.getElementById('video-off-text').style.display = 'none';
+        }
     }
 
     if(message.type === 'toggledMic') {
@@ -129,6 +136,7 @@ let addAnswer = async (answer) => {
 }
 
 let createOffer = async (memberId) => {
+
     await createPeerConnection(memberId);
 
     let offer = await peerConnection.createOffer();
