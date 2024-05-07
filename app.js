@@ -23,12 +23,20 @@ let localStream;
 let remoteStream;
 let peerConnection;
 
+const urlParams = new URLSearchParams(window.location.search);
+let roomId = urlParams.get('room');
+
+if(!roomId) {
+    window.location.href = 'lobby.html';    
+}
+
+
 let init = async () => {
 
     client = await AgoraRTM.createInstance(APP_ID);
     await client.login({ uid, token });
 
-    channel = client.createChannel('main'); // finds by name or creates new channel
+    channel = client.createChannel(roomId); // finds by name or creates new channel
     await channel.join();
 
     channel.on('MemberJoined', handleUserJoined);
