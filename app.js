@@ -32,6 +32,7 @@ let init = async () => {
     await channel.join();
 
     channel.on('MemberJoined', handleUserJoined);
+    channel.on('MemberLeft', handleUserLeft);
 
     client.on('MessageFromPeer', handleMessageFromPeer);
 
@@ -62,11 +63,17 @@ let handleUserJoined = async (memberId) => {
     createOffer(memberId);
 }
 
+let handleUserLeft = async (memberId) => {
+    document.getElementById('remote').style.display = 'none';
+}
+
 let createPeerConnection = async (memberId) => {
     peerConnection = new RTCPeerConnection(servers);
 
     remoteStream = new MediaStream();
     document.getElementById('remote').srcObject = remoteStream;
+
+    document.getElementById('remote').style.display = 'block';
 
     if(!localStream) {
         localStream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -118,6 +125,16 @@ let createAnswer = async (memberId, offer) => {
     await peerConnection.setLocalDescription(answer);
 
     client.sendMessageToPeer({text: JSON.stringify({'type':'answer','answer': answer})}, memberId);
+}
+
+let leaveChannel = async () => {
+    await channel.leave();
+    await client.logout();
+}
+
+// before website actually closes
+window.onbeforeunload = (e) => {
+    leaveChannel();
 }
 
 init();
