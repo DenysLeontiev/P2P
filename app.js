@@ -68,7 +68,7 @@ let handleMessageFromPeer = async (message, memberId) => {
     }
 
     if(message.type === 'toggledMic') {
-        if(!message.isCamEnabled) {
+        if(!message.isMicEnabled) {
             document.getElementById('microphone-off-text').style.display = 'block';
         } else {
             document.getElementById('microphone-off-text').style.display = 'none';
