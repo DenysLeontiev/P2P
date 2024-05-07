@@ -74,6 +74,7 @@ let handleUserJoined = async (memberId) => {
 
 let handleUserLeft = async (memberId) => {
     document.getElementById('remote').style.display = 'none';
+    document.getElementById('local').classList.add('smallFrame');
 }
 
 let createPeerConnection = async (memberId) => {
@@ -83,6 +84,7 @@ let createPeerConnection = async (memberId) => {
     document.getElementById('remote').srcObject = remoteStream;
 
     document.getElementById('remote').style.display = 'block';
+    document.getElementById('local').classList.add('smallFrame');
 
     if (!localStream) {
         localStream = await navigator.mediaDevices.getUserMedia(constraints);
