@@ -7,7 +7,7 @@ form.addEventListener('submit', (e) => {
 
 let uidLink = generateUUID();
 let inviteLinkInput = document.getElementById('invite-link');
-inviteLinkInput.value = uidLink;
+inviteLinkInput.value = `127.0.0.1:5500/index.html?room=${uidLink}`;
 
 inviteLinkInput.addEventListener('click', () => {
     let meetingLink = `127.0.0.1:5500/index.html?room=${uidLink}`;
